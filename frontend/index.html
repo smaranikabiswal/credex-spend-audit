@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AI Spend Audit Tool</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <header>
+        <h1>⚡ AI Spend Audit</h1>
+        <p>Find where your team is overpaying for AI tools.</p>
+    </header>
+
+    <main class="container">
+
+      
+        <section class="input-card">
+
+            <h2>1. Add AI Tools</h2>
+<p class="section-subtext">
+    Add the AI tools your company currently pays for.
+</p>
+            <div id="tools-container">
+
+               
+                <div class="tool-row">
+
+                    
+                    <div class="field">
+                        <label>Tool</label>
+                        <select class="tool-select">
+                            <option value="">Select Tool</option>
+                            <option>ChatGPT</option>
+                            <option>Claude</option>
+                            <option>Cursor</option>
+                            <option>Gemini</option>
+                            <option>Perplexity</option>
+                            <option>Midjourney</option>
+                        </select>
+                    </div>
+
+                   
+                    <div class="field">
+                        <label>Plan</label>
+                        <select class="plan-select">
+                            <option value="">Select Plan</option>
+                            <option>Free</option>
+                            <option>Pro</option>
+                            <option>Team</option>
+                            <option>Business</option>
+                            <option>Enterprise</option>
+                        </select>
+                    </div>
+
+                  
+                    <div class="field">
+                        <label>Seats</label>
+                        <input type="number" class="seats-input" placeholder="5" />
+                    </div>
+
+                   
+                    <div class="field">
+                        <label>Monthly Cost ($)</label>
+                        <input type="number" class="cost-input" placeholder="200" />
+                    </div>
+
+                    
+                    <button class="remove-btn">✕</button>
+
+                </div>
+
+            </div>
+
+           
+            <button id="add-tool-btn">+ Add Another Tool</button>
+
+            <button id="audit-btn">Run AI Spend Audit</button>
+
+        </section>
+
+      
+        <section id="results-card" class="results-card hidden">
+            <h2>2. Audit Results</h2>
+
+            <div id="audit-results">
+                
+            </div>
+        </section>
+
+    </main>
+
+    <script src="app.js"></script>
+
+</body>
+</html>
