@@ -40,3 +40,15 @@
 - Initially underestimated how much product direction affects implementation decisions.
 - Learned that structured business inputs make audit logic significantly easier than trying to parse messy raw text.
 - Realized that keeping frontend logic modular early prevents the app from becoming difficult to scale later.
+
+## Day 3: May 23, 2026
+### Tasks Completed:
+- Resumed active development sprint after an intense architectural planning phase.
+- Designed and initialized a robust Node.js and Express backend workspace inside `backend/server.js`.
+- Configured essential backend middleware layers including `cors` for safe asset streaming and `express.json()` for parsing client payloads.
+- Engineered a POST endpoint `/api/audit` to receive structural multi-row SaaS data objects and calculate cumulative cost metrics.
+- Upgraded `frontend/app.js` with asynchronous JavaScript (`async/await` fetch operations) to safely pipe the client's asset matrix directly into the local server API layer.
+
+### Challenges Faced & Lessons Learned:
+- *Challenge:* Managing network routing and preventing cross-origin blockages when browser processes on one port communicate with a separate backend execution port.
+- *Solution:* Integrated the Express `cors` middleware policy package to explicitly authorize smooth, secure transaction tunnels between local environments.

@@ -68,3 +68,68 @@ toolsContainer.addEventListener('click', (e) => {
     }
 
 });
+
+document.getElementById('audit-btn').addEventListener('click', async () => {
+    const rows = document.querySelectorAll('.tool-row');
+    const payload = [];
+
+    rows.forEach(row => {
+        const tool = row.querySelector('.tool-select').value;
+        const plan = row.querySelector('.plan-select').value;
+        const seats = row.querySelector('.seats-input').value;
+        const cost = row.querySelector('.cost-input').value;
+
+        if (tool && plan) {
+            payload.push({ 
+                tool, 
+                plan, 
+                seats: parseInt(seats) || 0, 
+                cost: parseFloat(cost) || 0 
+            });
+        }
+    });
+
+    if (payload.length === 0) {
+        alert("Please select at least one tool and plan to run the audit.");
+        return;
+    }
+
+    const resultsCard = document.getElementById('results-card');
+    const auditResultsDiv = document.getElementById('audit-results');
+
+    
+    resultsCard.classList.remove('hidden');
+    resultsCard.scrollIntoView({ behavior: 'smooth' });
+    auditResultsDiv.innerHTML = `<p style="color: #a78bfa;">🔄 Sending asset matrix to Express server...</p>`;
+
+    try {
+       
+        const response = await fetch('http://localhost:5000/api/audit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ tools: payload }) 
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+         
+            auditResultsDiv.innerHTML = `
+                <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <h3 style="color: #a78bfa; margin-bottom: 10px;">📊 Server Audit Complete</h3>
+                    <p>Total Tools Evaluated: <strong>${data.summary.totalTools}</strong></p>
+                    <p>Aggregated Monthly Spend: <strong>$${data.summary.monthlySpend.toFixed(2)}</strong></p>
+                    <p style="margin-top: 10px; font-size: 0.9rem; color: #9ca3af;">🛠️ Server Status message: <em>"${data.summary.status}"</em></p>
+                </div>
+            `;
+        } else {
+            auditResultsDiv.innerHTML = `<p style="color: #ff6b6b;">❌ Server Error: ${data.error}</p>`;
+        }
+
+    } catch (error) {
+        console.error("Fetch error:", error);
+        auditResultsDiv.innerHTML = `<p style="color: #ff6b6b;">❌ Could not connect to the backend server. Make sure node server.js is running!</p>`;
+    }
+});
