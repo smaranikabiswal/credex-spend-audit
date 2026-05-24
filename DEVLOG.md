@@ -52,3 +52,18 @@
 ### Challenges Faced & Lessons Learned:
 - *Challenge:* Managing network routing and preventing cross-origin blockages when browser processes on one port communicate with a separate backend execution port.
 - *Solution:* Integrated the Express `cors` middleware policy package to explicitly authorize smooth, secure transaction tunnels between local environments.
+
+## Day 4: May 24, 2026
+### Tasks Completed:
+- Upgraded to full-stack by integrating the native Google AI SDK (`@google/genai`) with Gemini 2.5 Flash.
+- Implemented `dotenv` to securely manage API keys and credentials locally.
+- Regenerated the root `.gitignore` as a clean text file to prevent credential leaks.
+- Updated `app.js` loop to sanitize and map dynamic row data into a single payload array.
+- Verified live end-to-end data flow from the frontend inputs through Express to Gemini.
+- Added Chart.js CDN and fixed canvas re-rendering states using a tracking instance.
+
+### Challenges Faced & Lessons Learned:
+- *Product Pivot:* Realized generic conclusions add no value; the report must explicitly break down cost waste and actionable mitigation steps.
+- *Syntax Error:* Hit an Express crash because Node couldn't read modern ES module imports.
+- *Solution:* Added `"type": "module"` to `backend/package.json` to resolve the runtime crash and bring the AI pipeline live.
+- *Lesson:* Stepped away from the rigid 5-day deadline to focus on building a robust MongoDB layer tomorrow with a fresh brain.

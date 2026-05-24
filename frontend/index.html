@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>AI Spend Audit Tool</title>
     <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -15,19 +16,14 @@
 
     <main class="container">
 
-      
         <section class="input-card">
-
             <h2>1. Add AI Tools</h2>
-<p class="section-subtext">
-    Add the AI tools your company currently pays for.
-</p>
+            <p class="section-subtext">
+                Add the AI tools your company currently pays for.
+            </p>
+            
             <div id="tools-container">
-
-               
                 <div class="tool-row">
-
-                    
                     <div class="field">
                         <label>Tool</label>
                         <select class="tool-select">
@@ -41,7 +37,6 @@
                         </select>
                     </div>
 
-                   
                     <div class="field">
                         <label>Plan</label>
                         <select class="plan-select">
@@ -54,44 +49,55 @@
                         </select>
                     </div>
 
-                  
                     <div class="field">
                         <label>Seats</label>
                         <input type="number" class="seats-input" placeholder="5" />
                     </div>
 
-                   
                     <div class="field">
                         <label>Monthly Cost ($)</label>
                         <input type="number" class="cost-input" placeholder="200" />
                     </div>
 
-                    
                     <button class="remove-btn">✕</button>
-
                 </div>
-
             </div>
 
-           
             <button id="add-tool-btn">+ Add Another Tool</button>
-
             <button id="audit-btn">Run AI Spend Audit</button>
-
         </section>
 
-      
         <section id="results-card" class="results-card hidden">
             <h2>2. Audit Results</h2>
+            <hr class="divider" style="border: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
 
-            <div id="audit-results">
-                
+            <div id="audit-results" style="margin-bottom: 20px; line-height: 1.6;">
+                </div>
+
+            <div class="chart-container" style="position: relative; margin: 20px auto; height:30vh; width:100%">
+                <canvas id="costChart"></canvas>
             </div>
+
+            <div class="report-section" style="margin-top: 20px;">
+                <h3 style="color: #bc13fe; margin-bottom: 5px;">🔮 Executive Summary</h3>
+                <p id="executive-summary-text">Analyzing your software stack...</p>
+            </div>
+
+            <div class="report-section" style="margin-top: 15px;">
+                <h3 style="color: #bc13fe; margin-bottom: 5px;">Identified Tool Overlaps</h3>
+                <ul id="redundancies-list" style="padding-left: 20px; line-height: 1.6;"></ul>
+            </div>
+
+            <div class="report-section" style="margin-top: 15px; margin-bottom: 25px;">
+                <h3 style="color: #bc13fe; margin-bottom: 5px;">Recommended AI Alternatives</h3>
+                <ul id="ai-alternatives-list" style="padding-left: 20px; line-height: 1.6;"></ul>
+            </div>
+
+            <button id="btn-export" class="download-btn">Download Executive Report</button>
         </section>
 
     </main>
 
     <script src="app.js"></script>
-
 </body>
 </html>

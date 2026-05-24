@@ -1,43 +1,74 @@
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { GoogleGenAI } from '@google/genai';
+
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
 app.use(cors());
-app.use(express.json()); 
+app.use(express.json());
 
-app.get('/api/health', (req, res) => {
-    res.json({ status: "Backend engine is running smoothly" });
-});
+app.post('/api/audit', async (req, res) => {
+    try {
+        const { tools, totalSpend } = req.body;
 
-app.post('/api/audit', (req, res) => {
-    const { tools } = req.body;
-
-    if (!tools || !Array.isArray(tools) || tools.length === 0) {
-        return res.status(400).json({ error: "No tool data received by the server." });
-    }
-
-    console.log("📥 Received SaaS Payload for Auditing:", tools);
-
-   
-    let totalCost = 0;
-    tools.forEach(t => totalCost += t.cost);
-
-    
-    res.json({
-        success: true,
-        message: "Backend successfully parsed asset matrix.",
-        summary: {
-            totalTools: tools.length,
-            monthlySpend: totalCost,
-            status: "Pending AI layer optimization analysis on Day 4."
+        if (!tools || tools.length === 0) {
+            return res.status(400).json({ error: "No tools provided for auditing." });
         }
-    });
+
+       
+const prompt = `
+            You are a forensic SaaS financial controller. Inspect this tool inventory for spending leakage.
+            
+            Current Monthly Budget: $${totalSpend}
+            Inventory Payload: ${JSON.stringify(tools)}
+
+            Perform a two-stage deep-dive financial audit:
+            1. Identify EXACTLY where money is being wasted (over-allocated seats, plan mismatches, feature duplication).
+            2. Provide a tactical, step-by-step reduction roadmap explaining exactly HOW to claw back that waste.
+
+            Return your complete response matching this precise JSON schema structure:
+            {
+                "optimizedTotal": 70,
+                "executiveSummary": "A concise paragraph summarizing major areas of waste, tool overlaps, and strategic shifts.",
+                "redundancies": [
+                    { "tool": "Tool Name", "issue": "Detailed reason why money is wasted here", "recommendation": "Exact instruction to consolidate or downgrade" }
+                ],
+                "aiAlternatives": [
+                    { "tool": "Current Tool", "alternative": "Recommended AI Alternative", "reason": "Why it is better or cheaper", "savings": 45 }
+                ]
+            }
+        `;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+                responseMimeType: 'application/json'
+            }
+        });
+
+
+        const auditResult = JSON.parse(response.text);
+        res.json({
+            success: true,
+            auditId: "TEMP-DEV-MODE",
+            ...auditResult
+        });
+
+    } catch (error) {
+        console.error("Gemini Audit Error:", error);
+        res.status(500).json({ error: "Failed to process AI audit report." });
+    }
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Audit backend server spinning on port ${PORT}`);
+    console.log(`🚀 Audit backend server actively spinning on port ${PORT}`);
 });

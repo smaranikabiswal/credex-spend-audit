@@ -297,3 +297,20 @@ button {
         padding: 22px;
     }
 }
+.download-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #9333ea, #6d28d9);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.download-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.45);
+}
