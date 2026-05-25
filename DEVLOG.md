@@ -67,3 +67,18 @@
 - *Syntax Error:* Hit an Express crash because Node couldn't read modern ES module imports.
 - *Solution:* Added `"type": "module"` to `backend/package.json` to resolve the runtime crash and bring the AI pipeline live.
 - *Lesson:* Stepped away from the rigid 5-day deadline to focus on building a robust MongoDB layer tomorrow with a fresh brain.
+
+## Day 5: May 25, 2026
+### Tasks Completed:
+- Integrated MongoDB and Mongoose into `backend/server.js` to create a persistent database layer.
+- Defined an `AuditReport` schema to store total spend, optimized totals, and the detailed AI breakdown for every scan.
+- Refactored the `/api/audit` route to save the AI results to the database first, then return the generated `_id` to the frontend dashboard.
+- Improved mobile responsiveness across the dashboard by tweaking CSS grid templates (`1fr` stacking) and adjusting body padding for smaller screens.
+- Cleaned up static HTML to fix massive layout gaps caused by duplicate `chart-container` divs and a rogue `class="class="` syntax typo.
+
+### Challenges Faced & Lessons Learned:
+- *Bug:* The UI suddenly had massive blank gaps between the chart and the executive summary.
+- *Solution:* Realized I had a duplicate hardcoded `<div class="chart-container">` in my `index.html` fighting with the one generated dynamically in `app.js`. Deleted the static one to let JavaScript handle the rendering.
+- *Challenge:* Securing the MongoDB connection string so it doesn't leak on GitHub.
+- *Solution:* Added `MONGODB_URI` to my local `.env` file and verified it was listed in my `.gitignore` before committing anything.
+- *Lesson:* Adding persistence made the application feel much closer to a production-style workflow instead of a temporary calculation tool.

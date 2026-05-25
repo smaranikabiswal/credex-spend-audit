@@ -115,6 +115,9 @@ auditBtn.addEventListener('click', async () => {
                     <p>Aggregated Monthly Spend: <strong>$${calculatedTotalSpend.toFixed(2)}</strong></p>
                     <p>Optimized Recommended Spend: <strong style="color: #2ec4b6;">$${data.optimizedTotal.toFixed(2)}</strong></p>
                 </div>
+                <div class="chart-container">
+                    <canvas id="costChart"></canvas>
+                </div>
             `;
 
             document.getElementById('executive-summary-text').innerText = data.executiveSummary;

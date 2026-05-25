@@ -2,18 +2,34 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
-
+import mongoose from 'mongoose';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 app.use(cors());
 app.use(express.json());
+
+
+mongoose.connect(process.env.MONGODB_URI)
+    .then(() => console.log('📦 MongoDB Actively Connected!'))
+    .catch(err => console.error('❌ MongoDB Connection Error:', err));
+
+const auditSchema = new mongoose.Schema({
+    totalSpend: Number,
+    optimizedTotal: Number,
+    tools: Array,
+    executiveSummary: String,
+    redundancies: Array,
+    aiAlternatives: Array,
+    createdAt: { type: Date, default: Date.now }
+});
+
+const AuditReport = mongoose.model('AuditReport', auditSchema);
+
 
 app.post('/api/audit', async (req, res) => {
     try {
@@ -23,8 +39,7 @@ app.post('/api/audit', async (req, res) => {
             return res.status(400).json({ error: "No tools provided for auditing." });
         }
 
-       
-const prompt = `
+        const prompt = `
             You are a forensic SaaS financial controller. Inspect this tool inventory for spending leakage.
             
             Current Monthly Budget: $${totalSpend}
@@ -50,25 +65,30 @@ const prompt = `
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
-            config: {
-                responseMimeType: 'application/json'
-            }
+            config: { responseMimeType: 'application/json' }
         });
 
-
         const auditResult = JSON.parse(response.text);
+
+       
+        const savedAudit = await AuditReport.create({
+            totalSpend,
+            tools,
+            optimizedTotal: auditResult.optimizedTotal,
+            executiveSummary: auditResult.executiveSummary,
+            redundancies: auditResult.redundancies,
+            aiAlternatives: auditResult.aiAlternatives
+        });
+
+       
         res.json({
             success: true,
-            auditId: "TEMP-DEV-MODE",
+            auditId: savedAudit._id, 
             ...auditResult
         });
 
     } catch (error) {
-        console.error("Gemini Audit Error:", error);
+        console.error("Gemini/DB Error:", error);
         res.status(500).json({ error: "Failed to process AI audit report." });
     }
-});
-
-app.listen(PORT, () => {
-    console.log(`🚀 Audit backend server actively spinning on port ${PORT}`);
 });
