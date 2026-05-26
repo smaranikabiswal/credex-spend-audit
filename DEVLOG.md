@@ -1,84 +1,183 @@
-# DevLog - Credex Spend Audit Tool
+## Day 1 — 2026-05-20
 
-## Day 1: May 20, 2026
-### Tasks Completed:
-- Set up the main project workspace and decided on a simple Vanilla JS + Node/Express setup.
-- Skipped using complex MVC/EJS structures (like the ones I used in my old Wanderlust project) because it's too complicated for a single-page audit tool.
-- Created the basic folder layout with separate 'frontend' and 'backend' folders in one single repository.
-- Made a root `.gitignore` file to hide node_modules and future `.env` API keys.
-- Initialized Git locally, created the repository on GitHub, and pushed the template workspace code live.
+**Hours worked:** 2
 
-### Challenges Faced & Lessons Learned:
-- Felt tempted to over-engineer the file structure with models/views/controllers out of habit. Had to remind myself to keep it clean and minimal so I don't break the 5-day deadline.
+**What I did:**
+Set up the main project workspace and decided on Vanilla JS + Node/Express. 
+Skipped MVC/EJS structures (used in my Wanderlust project) — too complex 
+for a single-page audit tool. Created folder layout with separate frontend 
+and backend directories. Made root .gitignore for node_modules and .env. 
+Initialized Git locally, created GitHub repo, pushed initial workspace.
+
+**What I learned:**
+Felt tempted to over-engineer with models/views/controllers out of habit. 
+Had to remind myself to keep it minimal to meet the deadline.
+
+**Blockers / what I'm stuck on:**
+Nothing blocking yet — setup phase went cleanly.
+
+**Plan for tomorrow:**
+Rethink the UI direction. The initial concept felt too much like a personal 
+expense tracker. Need to make it more B2B SaaS-appropriate.
 
 ---
 
-## Day 2: May 21, 2026
-### Tasks Completed:
-- [To be filled tomorrow]
+## Day 2 — 2026-05-21
 
-## Day 2: May 21, 2026
+**Hours worked:** 4
 
-### Tasks Completed:
-- Reworked the product direction after realizing the initial UI behaved too much like a personal expense tracker instead of a B2B AI spend auditing tool.
-- Replaced the free-text transaction textarea with a structured dynamic form system for AI SaaS inputs.
-- Added dropdown selectors for:
-  - AI tool name
-  - subscription plan
-  - seat count
-  - monthly cost
-- Built dynamic “Add Another Tool” functionality using Vanilla JavaScript.
-- Implemented row deletion support with event delegation for cleaner DOM handling.
-- Redesigned the frontend UI with a more polished SaaS-style dark theme:
-  - glassmorphism-inspired cards
-  - responsive grid layouts
-  - improved spacing and hover states
-  - modern button styling
-- Fixed browser-specific dark mode issues with `<select>` dropdown visibility.
+**What I did:**
+Reworked the product direction after realizing the initial UI behaved too 
+much like a personal expense tracker instead of a B2B AI spend auditing tool. 
+Replaced the free-text textarea with a structured dynamic form — dropdowns 
+for tool name, subscription plan, seat count, monthly cost. Built dynamic 
+"Add Another Tool" with vanilla JS and row deletion via event delegation. 
+Redesigned UI with glassmorphism dark theme, responsive grid layouts, 
+improved spacing and hover states. Fixed browser-specific dark mode issues 
+with select dropdown visibility.
 
-### Challenges Faced & Lessons Learned:
-- Initially underestimated how much product direction affects implementation decisions.
-- Learned that structured business inputs make audit logic significantly easier than trying to parse messy raw text.
-- Realized that keeping frontend logic modular early prevents the app from becoming difficult to scale later.
+**What I learned:**
+Structured business inputs make audit logic significantly easier than parsing 
+messy raw text. Keeping frontend logic modular early prevents scaling 
+problems later. Product direction affects every implementation decision — 
+changing direction on Day 2 was the right call even though it cost time.
 
-## Day 3: May 23, 2026
-### Tasks Completed:
-- Resumed active development sprint after an intense architectural planning phase.
-- Designed and initialized a robust Node.js and Express backend workspace inside `backend/server.js`.
-- Configured essential backend middleware layers including `cors` for safe asset streaming and `express.json()` for parsing client payloads.
-- Engineered a POST endpoint `/api/audit` to receive structural multi-row SaaS data objects and calculate cumulative cost metrics.
-- Upgraded `frontend/app.js` with asynchronous JavaScript (`async/await` fetch operations) to safely pipe the client's asset matrix directly into the local server API layer.
+**Blockers / what I'm stuck on:**
+Need to plan the backend architecture before writing any server code. 
+Spending Day 3 on architectural planning before touching the backend.
 
-### Challenges Faced & Lessons Learned:
-- *Challenge:* Managing network routing and preventing cross-origin blockages when browser processes on one port communicate with a separate backend execution port.
-- *Solution:* Integrated the Express `cors` middleware policy package to explicitly authorize smooth, secure transaction tunnels between local environments.
+**Plan for tomorrow:**
+Architectural planning day — no code. Map out the data flow, API shape, 
+and MongoDB schema before building.
 
-## Day 4: May 24, 2026
-### Tasks Completed:
-- Upgraded to full-stack by integrating the native Google AI SDK (`@google/genai`) with Gemini 2.5 Flash.
-- Implemented `dotenv` to securely manage API keys and credentials locally.
-- Regenerated the root `.gitignore` as a clean text file to prevent credential leaks.
-- Updated `app.js` loop to sanitize and map dynamic row data into a single payload array.
-- Verified live end-to-end data flow from the frontend inputs through Express to Gemini.
-- Added Chart.js CDN and fixed canvas re-rendering states using a tracking instance.
+---
 
-### Challenges Faced & Lessons Learned:
-- *Product Pivot:* Realized generic conclusions add no value; the report must explicitly break down cost waste and actionable mitigation steps.
-- *Syntax Error:* Hit an Express crash because Node couldn't read modern ES module imports.
-- *Solution:* Added `"type": "module"` to `backend/package.json` to resolve the runtime crash and bring the AI pipeline live.
-- *Lesson:* Stepped away from the rigid 5-day deadline to focus on building a robust MongoDB layer tomorrow with a fresh brain.
+## Day 3 — 2026-05-22
 
-## Day 5: May 25, 2026
-### Tasks Completed:
-- Integrated MongoDB and Mongoose into `backend/server.js` to create a persistent database layer.
-- Defined an `AuditReport` schema to store total spend, optimized totals, and the detailed AI breakdown for every scan.
-- Refactored the `/api/audit` route to save the AI results to the database first, then return the generated `_id` to the frontend dashboard.
-- Improved mobile responsiveness across the dashboard by tweaking CSS grid templates (`1fr` stacking) and adjusting body padding for smaller screens.
-- Cleaned up static HTML to fix massive layout gaps caused by duplicate `chart-container` divs and a rogue `class="class="` syntax typo.
+**Hours worked:** 0
 
-### Challenges Faced & Lessons Learned:
-- *Bug:* The UI suddenly had massive blank gaps between the chart and the executive summary.
-- *Solution:* Realized I had a duplicate hardcoded `<div class="chart-container">` in my `index.html` fighting with the one generated dynamically in `app.js`. Deleted the static one to let JavaScript handle the rendering.
-- *Challenge:* Securing the MongoDB connection string so it doesn't leak on GitHub.
-- *Solution:* Added `MONGODB_URI` to my local `.env` file and verified it was listed in my `.gitignore` before committing anything.
-- *Lesson:* Adding persistence made the application feel much closer to a production-style workflow instead of a temporary calculation tool.
+**What I did:**
+Family urgency
+
+**What I learned:**
+N/A
+
+**Blockers / what I'm stuck on:**
+N/A
+
+**Plan for tomorrow:**
+Start backend — Node/Express server, CORS setup, /api/audit endpoint, 
+async fetch from frontend.
+
+---
+
+## Day 4 — 2026-05-23
+
+**Hours worked:** 5
+
+**What I did:**
+Designed and initialized Node.js + Express backend in backend/server.js. 
+Configured CORS middleware and express.json() for payload parsing. Built 
+POST /api/audit endpoint to receive multi-row SaaS data and calculate 
+cumulative cost metrics. Upgraded frontend/app.js with async/await fetch 
+to pipe client data into the local API. Verified end-to-end data flow 
+from form inputs through Express.
+
+**What I learned:**
+Managing cross-origin requests between browser (one port) and backend 
+(another port) requires explicit CORS configuration. The express cors 
+package resolved the local environment routing issue cleanly.
+
+**Blockers / what I'm stuck on:**
+Generic AI conclusions add no value — the report needs explicit cost 
+breakdowns and actionable steps, not vague summaries. Rethinking the 
+Gemini prompt structure tomorrow.
+
+**Plan for tomorrow:**
+Integrate Gemini API, add dotenv for key management, wire up Chart.js 
+for the results visualization.
+
+---
+
+## Day 5 — 2026-05-24
+
+**Hours worked:** 6
+
+**What I did:**
+Integrated Google AI SDK (@google/genai) with Gemini 2.5 Flash. Implemented 
+dotenv for secure API key management. Regenerated .gitignore as clean text 
+file to prevent credential leaks. Updated app.js to sanitize and map dynamic 
+row data into a single payload array. Verified live end-to-end flow from 
+frontend through Express to Gemini. Added Chart.js CDN and fixed canvas 
+re-rendering using a tracking instance variable.
+
+**What I learned:**
+Node couldn't read ES module imports — fixed by adding "type": "module" 
+to backend/package.json. Hit this error: SyntaxError: Cannot use import 
+statement in a module. Adding the type field resolved it immediately. 
+Lesson: always check module type before debugging deeper.
+
+**Blockers / what I'm stuck on:**
+Need MongoDB persistence layer — right now results aren't saved anywhere. 
+Also need to write the deterministic audit logic properly.
+
+**Plan for tomorrow:**
+MongoDB integration, AuditReport schema, refactor /api/audit to save 
+results and return _id for share links.
+
+---
+
+## Day 6 — 2026-05-25
+
+**Hours worked:** 5
+
+**What I did:**
+Integrated MongoDB and Mongoose into backend/server.js. Defined AuditReport 
+schema to store total spend, optimized totals, and AI breakdown for every 
+scan. Refactored /api/audit to save results to database first then return 
+generated _id to frontend. Improved mobile responsiveness with CSS grid 
+template changes. Fixed massive layout gaps caused by duplicate 
+chart-container divs and a rogue class="class=" typo in HTML.
+
+**What I learned:**
+The UI had blank gaps between chart and executive summary. Root cause: 
+duplicate hardcoded chart-container div in index.html fighting with the 
+one generated dynamically in app.js. Deleted the static one. The MONGODB_URI 
+is in .env and verified in .gitignore before every commit — learned to check 
+this explicitly, not assume.
+
+**Blockers / what I'm stuck on:**
+All required MD documentation files still need to be written. Tests and 
+CI workflow not yet set up. Deployment pending.
+
+**Plan for tomorrow:**
+Write all 11 required MD files, write 5 unit tests, configure GitHub 
+Actions CI, deploy frontend and backend.
+
+---
+
+## Day 7 — 2026-05-26
+
+**Hours worked:** 6
+
+**What I did:**
+Wrote 5 Node.js unit tests in audit.test.js covering the deterministic 
+audit engine. Configured GitHub Actions CI workflow (.github/workflows/ci.yml) 
+to run lint and tests on every push to main. Deployed backend to Render 
+and frontend to Vercel. Wrote all 11 required documentation files: README, 
+ARCHITECTURE, REFLECTION, TESTS, PRICING_DATA, PROMPTS, GTM, ECONOMICS, 
+USER_INTERVIEWS, LANDING_COPY, METRICS.
+
+**What I learned:**
+Node's native test runner (node --test) works without Jest — simpler 
+and zero extra dependencies. GitHub Actions requires node-version: '18' 
+explicitly or it defaults to an older version that doesn't support 
+node:test. Deployment pathing issues resolved by consolidating 
+package.json execution scripts.
+
+**Blockers / what I'm stuck on:**
+Transactional email (Resend integration) is still a stub — documented 
+as known gap in REFLECTION.md.
+
+**Plan for tomorrow:**
+Submitted. Rest.

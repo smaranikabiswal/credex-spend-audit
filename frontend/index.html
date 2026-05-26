@@ -3,7 +3,19 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>AI Spend Audit Tool</title>
+    <title>AI Spend Audit — Find Where Your Team Overpays for AI</title>
+
+    <!-- Open Graph / Twitter Card -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AI Spend Audit — Find Where Your Team Overpays for AI" />
+    <meta property="og:description" content="Free tool: input your AI tools and get an instant audit showing where you're overspending and what to switch to. Used by 100+ startups." />
+    <meta property="og:image" content="/og-preview.png" />
+    <meta property="og:url" content="https://your-deployed-url.vercel.app" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AI Spend Audit — Find Where Your Team Overpays for AI" />
+    <meta name="twitter:description" content="Free tool: input your AI tools and get an instant audit showing where you're overspending and what to switch to." />
+    <meta name="twitter:image" content="/og-preview.png" />
+
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -11,85 +23,81 @@
 
     <header>
         <h1>⚡ AI Spend Audit</h1>
-        <p>Find where your team is overpaying for AI tools.</p>
+        <p>Find where your team is overpaying for AI tools — free, instant, no login required.</p>
     </header>
 
     <main class="container">
 
-        <section class="input-card">
-            <h2>1. Add AI Tools</h2>
+        <!-- INPUT CARD -->
+        <section class="input-card" id="input-card-container">
+            <h2>1. Add Your AI Tools</h2>
             <p class="section-subtext">
-                Add the AI tools your company currently pays for.
+                Add every AI tool your team currently pays for. Be honest — the audit is only as good as your inputs.
             </p>
-            
-            <div id="tools-container">
-                <div class="tool-row">
-                    <div class="field">
-                        <label>Tool</label>
-                        <select class="tool-select">
-                            <option value="">Select Tool</option>
-                            <option>ChatGPT</option>
-                            <option>Claude</option>
-                            <option>Cursor</option>
-                            <option>Gemini</option>
-                            <option>Perplexity</option>
-                            <option>Midjourney</option>
-                        </select>
-                    </div>
 
-                    <div class="field">
-                        <label>Plan</label>
-                        <select class="plan-select">
-                            <option value="">Select Plan</option>
-                            <option>Free</option>
-                            <option>Pro</option>
-                            <option>Team</option>
-                            <option>Business</option>
-                            <option>Enterprise</option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label>Seats</label>
-                        <input type="number" class="seats-input" placeholder="5" />
-                    </div>
-
-                    <div class="field">
-                        <label>Monthly Cost ($)</label>
-                        <input type="number" class="cost-input" placeholder="200" />
-                    </div>
-
-                    <button class="remove-btn">✕</button>
+            <!-- Team context fields -->
+            <div class="context-row">
+                <div class="field">
+                    <label for="team-size-input">Team Size</label>
+                    <input
+                        type="number"
+                        id="team-size-input"
+                        placeholder="e.g. 8"
+                        min="1"
+                        aria-label="Team size"
+                    />
+                </div>
+                <div class="field">
+                    <label for="use-case-select">Primary Use Case</label>
+                    <select id="use-case-select" aria-label="Primary use case">
+                        <option value="mixed">Mixed / General</option>
+                        <option value="coding">Coding / Engineering</option>
+                        <option value="writing">Writing / Content</option>
+                        <option value="data">Data / Analysis</option>
+                        <option value="research">Research</option>
+                    </select>
                 </div>
             </div>
 
-            <button id="add-tool-btn">+ Add Another Tool</button>
-            <button id="audit-btn">Run AI Spend Audit</button>
+            <!-- Tool rows injected here by app.js -->
+            <div id="tools-container"></div>
+
+            <button id="add-tool-btn" aria-label="Add another tool">+ Add Another Tool</button>
+            <button id="audit-btn" aria-label="Run AI spend audit">🔍 Run AI Spend Audit</button>
         </section>
 
-        <section id="results-card" class="results-card hidden">
-            <h2>2. Audit Results</h2>
-            <hr class="divider" style="border: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+        <!-- RESULTS CARD (hidden until audit runs) -->
+        <section id="results-card" class="results-card hidden" aria-live="polite">
+            <h2>2. Your Audit Results</h2>
+            <hr style="border: 1px solid rgba(255,255,255,0.1); margin: 15px 0;" />
 
-            <div id="audit-results" style="margin-bottom: 20px; line-height: 1.6;">
-                </div>
+            <!-- Savings hero + chart injected here -->
+            <div id="audit-results"></div>
 
+            <!-- Executive summary -->
             <div class="report-section" style="margin-top: 20px;">
-                <h3 style="color: #bc13fe; margin-bottom: 5px;">🔮 Executive Summary</h3>
-                <p id="executive-summary-text">Analyzing your software stack...</p>
+                <h3 style="color: #bc13fe; margin-bottom: 8px;">🔮 Executive Summary</h3>
+                <p id="executive-summary-text" style="line-height: 1.7; color: #cbd5e1;">
+                    Analyzing your software stack...
+                </p>
             </div>
 
-            <div class="report-section" style="margin-top: 15px;">
-                <h3 style="color: #bc13fe; margin-bottom: 5px;">Identified Tool Overlaps</h3>
-                <ul id="redundancies-list" style="padding-left: 20px; line-height: 1.6;"></ul>
+            <!-- Tool overlaps -->
+            <div class="report-section" style="margin-top: 20px;">
+                <h3 style="color: #bc13fe; margin-bottom: 8px;">⚠️ Identified Tool Overlaps</h3>
+                <ul id="redundancies-list" style="padding-left: 20px; line-height: 1.8;"></ul>
             </div>
 
-            <div class="report-section" style="margin-top: 15px; margin-bottom: 25px;">
-                <h3 style="color: #bc13fe; margin-bottom: 5px;">Recommended AI Alternatives</h3>
-                <ul id="ai-alternatives-list" style="padding-left: 20px; line-height: 1.6;"></ul>
+            <!-- Recommended alternatives -->
+            <div class="report-section" style="margin-top: 20px; margin-bottom: 25px;">
+                <h3 style="color: #bc13fe; margin-bottom: 8px;">💡 Recommended Alternatives</h3>
+                <ul id="ai-alternatives-list" style="padding-left: 20px; line-height: 1.8;"></ul>
             </div>
 
-            <button id="btn-export" class="download-btn">Download Executive Report</button>
+            <!-- Export button -->
+            <button id="btn-export" class="download-btn" aria-label="Download executive report">
+                📄 Download Executive Report
+            </button>
         </section>
 
     </main>

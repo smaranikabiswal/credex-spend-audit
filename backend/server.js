@@ -1,94 +1,187 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { GoogleGenAI } from '@google/genai';
-import mongoose from 'mongoose';
+import rateLimit from 'express-rate-limit';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+// 1. Abuse Protection: Rate Limiter Configuration
+const auditLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes window
+    max: 30, // Limit each IP to 30 audit or lead requests per window
+    message: { error: "Too many optimization requests from this footprint. Rate safety triggered." }
+});
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-
+// 2. Database Connection
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('📦 MongoDB Actively Connected!'))
-    .catch(err => console.error('❌ MongoDB Connection Error:', err));
+    .then(() => console.log('Database connected successfully to Mongo cluster.'))
+    .catch(err => console.error('Database terminal connection failure:', err));
 
-const auditSchema = new mongoose.Schema({
-    totalSpend: Number,
-    optimizedTotal: Number,
-    tools: Array,
-    executiveSummary: String,
-    redundancies: Array,
-    aiAlternatives: Array,
+// 3. Database Schemas & Models
+const auditReportSchema = new mongoose.Schema({
+    totalSpend: { type: Number, required: true },
+    optimizedTotal: { type: Number, required: true },
+    teamSize: { type: Number, required: true },
+    useCase: { type: String, required: true },
+    tools: [{
+        tool: String,
+        plan: String,
+        seats: Number,
+        cost: Number
+    }],
+    redundancies: [{
+        tool: String,
+        issue: String,
+        recommendation: String
+    }],
+    aiAlternatives: [{
+        tool: String,
+        alternative: String,
+        reason: String,
+        savings: Number
+    }],
+    executiveSummary: { type: String, required: true },
     createdAt: { type: Date, default: Date.now }
 });
 
-const AuditReport = mongoose.model('AuditReport', auditSchema);
+const leadSchema = new mongoose.Schema({
+    email: { type: String, required: true, trim: true },
+    company: { type: String, trim: true, default: '' },
+    role: { type: String, trim: true, default: '' },
+    auditId: { type: mongoose.Schema.Types.ObjectId, ref: 'AuditReport', required: true },
+    capturedAt: { type: Date, default: Date.now }
+});
 
+const AuditReport = mongoose.model('AuditReport', auditReportSchema);
+const Lead = mongoose.model('Lead', leadSchema);
 
-app.post('/api/audit', async (req, res) => {
+// 4. API Endpoints
+
+// Route to process audit inputs and run the LLM text generation fallback chain
+app.post('/api/audit', auditLimiter, async (req, res) => {
     try {
-        const { tools, totalSpend } = req.body;
+        const { tools, totalSpend, teamSize, useCase, optimizedTotal, redundancies, aiAlternatives } = req.body;
 
         if (!tools || tools.length === 0) {
-            return res.status(400).json({ error: "No tools provided for auditing." });
+            return res.status(400).json({ success: false, error: "Ecosystem asset list matrix cannot be empty." });
         }
 
-        const prompt = `
-            You are a forensic SaaS financial controller. Inspect this tool inventory for spending leakage.
-            
-            Current Monthly Budget: $${totalSpend}
-            Inventory Payload: ${JSON.stringify(tools)}
+        // Generate the ~100-word personalized executive summary via LLM API or clean fallback template
+        let executiveSummary = "";
+        const promptText = `Analyze this startup software infrastructure stack. Team Size: ${teamSize}, Core Focus Track: ${useCase}. Current Monthly SaaS Overhead Spend: $${totalSpend}, Suggested Programmatic Target Spend Optimized Baseline: $${optimizedTotal}. System overlaps discovered: ${JSON.stringify(redundancies)}. Write a precise 100-word strategic advisory briefing summary highlighting immediate consolidation paths. Maintain an executive corporate voice. Do not include markdown headers or list flags.`;
 
-            Perform a two-stage deep-dive financial audit:
-            1. Identify EXACTLY where money is being wasted (over-allocated seats, plan mismatches, feature duplication).
-            2. Provide a tactical, step-by-step reduction roadmap explaining exactly HOW to claw back that waste.
-
-            Return your complete response matching this precise JSON schema structure:
-            {
-                "optimizedTotal": 70,
-                "executiveSummary": "A concise paragraph summarizing major areas of waste, tool overlaps, and strategic shifts.",
-                "redundancies": [
-                    { "tool": "Tool Name", "issue": "Detailed reason why money is wasted here", "recommendation": "Exact instruction to consolidate or downgrade" }
-                ],
-                "aiAlternatives": [
-                    { "tool": "Current Tool", "alternative": "Recommended AI Alternative", "reason": "Why it is better or cheaper", "savings": 45 }
-                ]
+        try {
+            if (!process.env.LLM_API_KEY) {
+                throw new Error("Missing LLM service integration credential parameters.");
             }
-        `;
 
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: { responseMimeType: 'application/json' }
-        });
+            // Standard implementation using direct cloud endpoints to clear dependency conflicts
+            const llmResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.LLM_API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: promptText }] }],
+                    generationConfig: { maxOutputTokens: 200 }
+                })
+            });
 
-        const auditResult = JSON.parse(response.text);
+            const llmData = await llmResponse.json();
+            if (llmData.candidates && llmData.candidates[0].content.parts[0].text) {
+                executiveSummary = llmData.candidates[0].content.parts[0].text.trim();
+            } else {
+                throw new Error("Invalid output content structure from remote model parsing.");
+            }
+        } catch (apiError) {
+            console.warn("LLM Pipeline Interrupted, routing sequence to structural fallback template:", apiError.message);
+            // Bulletproof backup template keeping audit experience intact
+            executiveSummary = `Your development cluster currently presents an allocation profile spending $${totalSpend}/mo across ${tools.length} active instances. Based on your target execution parameters for ${useCase} workloads with a headcount baseline of ${teamSize}, consolidating your system architecture onto dedicated environments and utilizing institutional pricing configurations lowers your predictable operational spend floor to an estimated $${optimizedTotal}/mo. This transition mitigates systematic workspace fragmentation while recovering capital margins.`;
+        }
 
-       
-        const savedAudit = await AuditReport.create({
+        // Store configuration matrix securely into MongoDB cluster
+        const newReport = await AuditReport.create({
             totalSpend,
+            optimizedTotal,
+            teamSize,
+            useCase,
             tools,
-            optimizedTotal: auditResult.optimizedTotal,
-            executiveSummary: auditResult.executiveSummary,
-            redundancies: auditResult.redundancies,
-            aiAlternatives: auditResult.aiAlternatives
+            redundancies,
+            aiAlternatives,
+            executiveSummary
         });
 
-       
+        res.status(201).json({
+            success: true,
+            auditId: newReport._id,
+            optimizedTotal: newReport.optimizedTotal,
+            executiveSummary: newReport.executiveSummary,
+            redundancies: newReport.redundancies,
+            aiAlternatives: newReport.aiAlternatives
+        });
+
+    } catch (err) {
+        console.error("Audit operational tracking block fault:", err);
+        res.status(500).json({ success: false, error: "Internal processing architecture encountered an evaluation anomaly." });
+    }
+});
+
+// Route to fetch an existing audit report for a public share link (strips personal info)
+app.get('/api/audit/:id', async (req, res) => {
+    try {
+        const audit = await AuditReport.findById(req.params.id);
+        if (!audit) {
+            return res.status(404).json({ success: false, error: "The requested tracking reference profile does not exist or has expired." });
+        }
+
+        // Strict Requirement Execution: Strip identifying parameters to insulate user profiles
         res.json({
             success: true,
-            auditId: savedAudit._id, 
-            ...auditResult
+            totalSpend: audit.totalSpend,
+            optimizedTotal: audit.optimizedTotal,
+            teamSize: audit.teamSize,
+            useCase: audit.useCase,
+            tools: audit.tools,
+            redundancies: audit.redundancies,
+            aiAlternatives: audit.aiAlternatives,
+            executiveSummary: audit.executiveSummary
         });
-
     } catch (error) {
-        console.error("Gemini/DB Error:", error);
-        res.status(500).json({ error: "Failed to process AI audit report." });
+        res.status(500).json({ success: false, error: "The provided optimization link structure format is invalid." });
     }
+});
+
+// Route to record lead signups and print mock transactional outbox dispatches
+app.post('/api/lead', auditLimiter, async (req, res) => {
+    try {
+        const { email, company, role, auditId } = req.body;
+
+        if (!email || !auditId) {
+            return res.status(400).json({ success: false, error: "Target email credentials and associated report matrices are mandatory." });
+        }
+
+        await Lead.create({ email, company, role, auditId });
+
+        // Transactional Email Stub Log Integration
+        console.log(`\n==================================================`);
+        console.log(`STUB TRANSACTIONAL SYSTEM OUTBOUND EMAIL ROUTE`);
+        console.log(`Target Recipient Address: ${email}`);
+        console.log(`Subject Line: Credex Infrastructure Optimization Breakdown Blueprint`);
+        console.log(`Body Context: Verification token initialized for reference parameter [${auditId}]. An institutional specialist will compile matching high-volume allocation discounts.`);
+        console.log(`==================================================\n`);
+
+        res.status(201).json({ success: true, message: "Lead identity records securely written to tracking cluster." });
+    } catch (error) {
+        res.status(500).json({ success: false, error: "Failed to securely save lead profiling data parameters." });
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Server orchestration engine executing efficiently on port allocation: ${PORT}`);
 });
