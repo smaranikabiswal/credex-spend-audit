@@ -9,23 +9,22 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// 1. Abuse Protection: Rate Limiter Configuration
+
 const auditLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes window
-    max: 30, // Limit each IP to 30 audit or lead requests per window
+    windowMs: 15 * 60 * 1000, 
+    max: 30, 
     message: { error: "Too many optimization requests from this footprint. Rate safety triggered." }
 });
 
-// Middleware
+
 app.use(cors());
 app.use(express.json());
 
-// 2. Database Connection
+
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('Database connected successfully to Mongo cluster.'))
     .catch(err => console.error('Database terminal connection failure:', err));
 
-// 3. Database Schemas & Models
 const auditReportSchema = new mongoose.Schema({
     totalSpend: { type: Number, required: true },
     optimizedTotal: { type: Number, required: true },
@@ -63,9 +62,8 @@ const leadSchema = new mongoose.Schema({
 const AuditReport = mongoose.model('AuditReport', auditReportSchema);
 const Lead = mongoose.model('Lead', leadSchema);
 
-// 4. API Endpoints
 
-// Route to process audit inputs and run the LLM text generation fallback chain
+
 app.post('/api/audit', auditLimiter, async (req, res) => {
     try {
         const { tools, totalSpend, teamSize, useCase, optimizedTotal, redundancies, aiAlternatives } = req.body;
@@ -74,7 +72,6 @@ app.post('/api/audit', auditLimiter, async (req, res) => {
             return res.status(400).json({ success: false, error: "Ecosystem asset list matrix cannot be empty." });
         }
 
-        // Generate the ~100-word personalized executive summary via LLM API or clean fallback template
         let executiveSummary = "";
         const promptText = `Analyze this startup software infrastructure stack. Team Size: ${teamSize}, Core Focus Track: ${useCase}. Current Monthly SaaS Overhead Spend: $${totalSpend}, Suggested Programmatic Target Spend Optimized Baseline: $${optimizedTotal}. System overlaps discovered: ${JSON.stringify(redundancies)}. Write a precise 100-word strategic advisory briefing summary highlighting immediate consolidation paths. Maintain an executive corporate voice. Do not include markdown headers or list flags.`;
 
@@ -83,7 +80,6 @@ app.post('/api/audit', auditLimiter, async (req, res) => {
                 throw new Error("Missing LLM service integration credential parameters.");
             }
 
-            // Standard implementation using direct cloud endpoints to clear dependency conflicts
             const llmResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.LLM_API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -101,11 +97,11 @@ app.post('/api/audit', auditLimiter, async (req, res) => {
             }
         } catch (apiError) {
             console.warn("LLM Pipeline Interrupted, routing sequence to structural fallback template:", apiError.message);
-            // Bulletproof backup template keeping audit experience intact
+
             executiveSummary = `Your development cluster currently presents an allocation profile spending $${totalSpend}/mo across ${tools.length} active instances. Based on your target execution parameters for ${useCase} workloads with a headcount baseline of ${teamSize}, consolidating your system architecture onto dedicated environments and utilizing institutional pricing configurations lowers your predictable operational spend floor to an estimated $${optimizedTotal}/mo. This transition mitigates systematic workspace fragmentation while recovering capital margins.`;
         }
 
-        // Store configuration matrix securely into MongoDB cluster
+  
         const newReport = await AuditReport.create({
             totalSpend,
             optimizedTotal,
@@ -132,7 +128,7 @@ app.post('/api/audit', auditLimiter, async (req, res) => {
     }
 });
 
-// Route to fetch an existing audit report for a public share link (strips personal info)
+
 app.get('/api/audit/:id', async (req, res) => {
     try {
         const audit = await AuditReport.findById(req.params.id);
@@ -140,7 +136,6 @@ app.get('/api/audit/:id', async (req, res) => {
             return res.status(404).json({ success: false, error: "The requested tracking reference profile does not exist or has expired." });
         }
 
-        // Strict Requirement Execution: Strip identifying parameters to insulate user profiles
         res.json({
             success: true,
             totalSpend: audit.totalSpend,
@@ -157,7 +152,6 @@ app.get('/api/audit/:id', async (req, res) => {
     }
 });
 
-// Route to record lead signups and print mock transactional outbox dispatches
 app.post('/api/lead', auditLimiter, async (req, res) => {
     try {
         const { email, company, role, auditId } = req.body;
@@ -168,7 +162,6 @@ app.post('/api/lead', auditLimiter, async (req, res) => {
 
         await Lead.create({ email, company, role, auditId });
 
-        // Transactional Email Stub Log Integration
         console.log(`\n==================================================`);
         console.log(`STUB TRANSACTIONAL SYSTEM OUTBOUND EMAIL ROUTE`);
         console.log(`Target Recipient Address: ${email}`);
