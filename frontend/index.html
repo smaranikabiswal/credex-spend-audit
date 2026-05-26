@@ -7,13 +7,13 @@
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content="AI Spend Audit — Find Where Your Team Overpays for AI" />
-    <meta property="og:description" content="Free tool: input your AI tools and get an instant audit showing where you're overspending and what to switch to. Used by 100+ startups." />
-    <meta property="og:image" content="/og-preview.png" />
-    <meta property="og:url" content="https://your-deployed-url.vercel.app" />
+    <meta property="og:description" content="Free tool: input your AI tools and get an instant audit showing where you're overspending and what to switch to." />
+    <meta property="og:image" content="/screenshots/screenshot-2-results.png" />
+    <meta property="og:url" content="https://credex-spend-audit-liart.vercel.app" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="AI Spend Audit — Find Where Your Team Overpays for AI" />
     <meta name="twitter:description" content="Free tool: input your AI tools and get an instant audit showing where you're overspending and what to switch to." />
-    <meta name="twitter:image" content="/og-preview.png" />
+    <meta name="twitter:image" content="/screenshots/screenshot-2-results.png" />
 
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -33,7 +33,6 @@
                 Add every AI tool your team currently pays for. Be honest — the audit is only as good as your inputs.
             </p>
 
-           
             <div class="context-row">
                 <div class="field">
                     <label for="team-size-input">Team Size</label>
@@ -63,12 +62,10 @@
             <button id="audit-btn" aria-label="Run AI spend audit">🔍 Run AI Spend Audit</button>
         </section>
 
-      
         <section id="results-card" class="results-card hidden" aria-live="polite">
             <h2>2. Your Audit Results</h2>
             <hr style="border: 1px solid rgba(255,255,255,0.1); margin: 15px 0;" />
 
-        
             <div id="audit-results"></div>
 
             <div class="report-section" style="margin-top: 20px;">
@@ -78,19 +75,16 @@
                 </p>
             </div>
 
-           
             <div class="report-section" style="margin-top: 20px;">
                 <h3 style="color: #bc13fe; margin-bottom: 8px;">⚠️ Identified Tool Overlaps</h3>
                 <ul id="redundancies-list" style="padding-left: 20px; line-height: 1.8;"></ul>
             </div>
 
-   
             <div class="report-section" style="margin-top: 20px; margin-bottom: 25px;">
                 <h3 style="color: #bc13fe; margin-bottom: 8px;">💡 Recommended Alternatives</h3>
                 <ul id="ai-alternatives-list" style="padding-left: 20px; line-height: 1.8;"></ul>
             </div>
 
-        
             <button id="btn-export" class="download-btn" aria-label="Download executive report">
                 📄 Download Executive Report
             </button>
